@@ -9,33 +9,54 @@ const crypto = require("crypto");
 require("dotenv").config();
 
 // Firebase Admin SDK Setup
-const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+let serviceAccount;
 
-if (!serviceAccountPath) {
-    throw new Error("FIREBASE_SERVICE_ACCOUNT_PATH is missing in .env");
+if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+    try {
+        serviceAccount = JSON.parse(
+            process.env.FIREBASE_SERVICE_ACCOUNT_JSON
+        );
+    } catch (error) {
+        throw new Error(
+            "FIREBASE_SERVICE_ACCOUNT_JSON is not valid JSON."
+        );
+    }
+} else if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
+    serviceAccount = require(
+        path.resolve(process.env.FIREBASE_SERVICE_ACCOUNT_PATH)
+    );
+} else {
+    throw new Error(
+        "Firebase service account configuration is missing."
+    );
 }
 
-const serviceAccount = require(path.resolve(serviceAccountPath));
-
 admin.initializeApp({
-    credential: admin.cert(serviceAccount)
+    credential: admin.credential.cert(serviceAccount)
 });
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
+// TiDB Cloud / MySQL Database Connection
 const db = mysql.createPool({
-    host: "localhost",
-    user: "root",
+    host: process.env.DB_HOST || "localhost",
+    user: process.env.DB_USER || "root",
     password: process.env.DB_PASSWORD,
-    database: "quizmate",
-    port: 3306,
+    database: process.env.DB_NAME || "quizmate",
+    port: Number(process.env.DB_PORT || 3306),
+
+    ssl: process.env.DB_HOST
+        ? { rejectUnauthorized: true }
+        : undefined,
+
     waitForConnections: true,
-    connectionLimit: 10
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
 // Helpers
@@ -69,7 +90,9 @@ app.get("/test-db", async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Database Connection Failed" });
+        res.status(500).json({
+            message: "Database Connection Failed"
+        });
     }
 });
 
@@ -190,7 +213,6 @@ app.post("/api/google-login", async (req, res) => {
             });
         }
 
-        // Verify Firebase ID Token
         const decodedToken = await getAuth().verifyIdToken(idToken);
 
         if (!decodedToken.email || !decodedToken.email_verified) {
@@ -202,7 +224,6 @@ app.post("/api/google-login", async (req, res) => {
         const email = decodedToken.email.trim().toLowerCase();
         const name = decodedToken.name || email.split("@")[0];
 
-        // Check existing MySQL account
         const [rows] = await db.query(
             "SELECT id, name, email, role FROM students WHERE email = ?",
             [email]
@@ -211,11 +232,8 @@ app.post("/api/google-login", async (req, res) => {
         let user;
 
         if (rows.length > 0) {
-            // Keep existing account and role
             user = rows[0];
-
         } else {
-            // Create new Google user as Student
             const randomPassword = crypto.randomBytes(32).toString("hex");
             const hashedPassword = await bcrypt.hash(randomPassword, 10);
 
@@ -619,7 +637,7 @@ app.get("/api/results/:studentId", async (req, res) => {
     }
 });
 
-// MySQL Leaderboard
+// Leaderboard
 app.get("/api/leaderboard", async (req, res) => {
     try {
         const [rows] = await db.query(
@@ -792,6 +810,6 @@ app.delete("/api/admin/results", async (req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
-    console.log(`QuizMate Server running at http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`QuizMate Server running on port ${PORT}`);
 });
