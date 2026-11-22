@@ -2,7 +2,7 @@ const express = require("express");
 const mysql = require("mysql2/promise");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
-const admin = require("firebase-admin");
+const { initializeApp, cert } = require("firebase-admin/app");
 const { getAuth } = require("firebase-admin/auth");
 const path = require("path");
 const crypto = require("crypto");
@@ -31,8 +31,8 @@ if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
     );
 }
 
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
+initializeApp({
+    credential: cert(serviceAccount)
 });
 
 const app = express();
