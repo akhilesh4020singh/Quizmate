@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuizMate | Quiz Management System</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <header class="navbar">
+    <a class="logo" href="#" onclick="showHome()"><span>Q</span> QuizMate</a>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#features">Features</a>
+      <a href="#quizzes">Quizzes</a>
+      <a href="#leaderboard">Leaderboard</a>
+    </nav>
+    <div class="nav-actions">
+      <span id="userLabel"></span>
+      <button class="btn btn-outline" id="loginBtn" onclick="openLogin()">Login</button>
+      <button class="btn btn-dark hidden" id="logoutBtn" onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="hero-content">
+        <span class="eyebrow">LEARN • PRACTICE • ACHIEVE</span>
+        <h1>Test your knowledge.<br><span>Unlock your potential.</span></h1>
+        <p>Practice smarter with interactive quizzes, instant results and performance tracking — all in one place.</p>
+        <div class="hero-buttons">
+          <button class="btn btn-primary" onclick="openLogin()">Get Started <span>→</span></button>
+          <a class="btn btn-outline" href="#quizzes">Explore Quizzes</a>
+        </div>
+        <div class="hero-stats">
+          <div><strong id="quizCount">0</strong><small>Available Quizzes</small></div>
+          <div><strong>Instant</strong><small>Result Analysis</small></div>
+          <div><strong>24/7</strong><small>Learn Anytime</small></div>
+        </div>
+      </div>
+      <div class="hero-art">
+        <div class="art-card">
+          <div class="art-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+          <div class="art-icon">🧠</div>
+          <h3>Ready to challenge yourself?</h3>
+          <p>Every question brings you one step closer to success.</p>
+          <div class="progress-line"><span></span></div>
+          <div class="art-bottom"><span>YOUR NEXT CHALLENGE</span><strong>Let's begin →</strong></div>
+        </div>
+        <div class="floating-badge">🏆 Keep learning!</div>
+      </div>
+    </section>
+
+    <section class="section" id="features">
+      <div class="section-heading">
+        <span class="eyebrow">WHY QUIZMATE?</span>
+        <h2>Everything you need to <span>learn better.</span></h2>
+        <p>A simple platform designed for students, teachers and administrators.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card"><div class="feature-icon purple">📝</div><h3>Smart Quizzes</h3><p>Attempt subject-wise quizzes with a simple and interactive interface.</p></article>
+        <article class="feature-card"><div class="feature-icon orange">⏱️</div><h3>Timed Tests</h3><p>Practice time management with countdown-based quizzes.</p></article>
+        <article class="feature-card"><div class="feature-icon green">📊</div><h3>Instant Results</h3><p>Get your score immediately after submitting your answers.</p></article>
+        <article class="feature-card"><div class="feature-icon blue">🏆</div><h3>Leaderboard</h3><p>Compare your performance with other learners.</p></article>
+      </div>
+    </section>
+
+    <section class="section quiz-section" id="quizzes">
+      <div class="section-heading left-heading">
+        <span class="eyebrow">PICK YOUR CHALLENGE</span>
+        <h2>Explore available <span>quizzes.</span></h2>
+        <p>Choose a subject and start improving your knowledge.</p>
+      </div>
+      <div class="filter-row">
+        <select id="subjectFilter" onchange="renderQuizzes()">
+          <option value="All">All Subjects</option>
+          <option value="Programming">Programming</option>
+          <option value="Artificial Intelligence">Artificial Intelligence</option>
+          <option value="Computer Science">Computer Science</option>
+          <option value="Mathematics">Mathematics</option>
+          <option value="General Knowledge">General Knowledge</option>
+        </select>
+        <span id="quizTotal"></span>
+      </div>
+      <div class="quiz-grid" id="quizGrid"></div>
+    </section>
+
+    <section class="section dashboard-section hidden" id="dashboard">
+      <div class="dashboard-heading">
+        <div><span class="eyebrow">YOUR WORKSPACE</span><h2 id="dashboardTitle">Dashboard</h2><p id="dashboardSubtitle">Track your activity.</p></div>
+        <span class="role-pill" id="rolePill"></span>
+      </div>
+      <div class="stats-grid" id="dashboardStats"></div>
+      <div class="dashboard-content" id="dashboardContent"></div>
+    </section>
+
+    <section class="section leaderboard-section" id="leaderboard">
+      <div class="section-heading">
+        <span class="eyebrow">TOP PERFORMERS</span>
+        <h2>Leaderboard <span>⭐</span></h2>
+        <p>Celebrate progress and keep challenging yourself.</p>
+      </div>
+      <div class="leaderboard-box">
+        <div class="leaderboard-head"><span>RANK</span><span>STUDENT</span><span>BEST SCORE</span></div>
+        <div id="leaderboardList"></div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div><span class="eyebrow">YOUR LEARNING JOURNEY STARTS HERE</span><h2>Ready to test what you know?</h2><p>Sign in and take your first quiz today.</p></div>
+      <button class="btn btn-light" onclick="openLogin()">Start Learning →</button>
+    </section>
+  </main>
+
+  <footer><a class="logo" href="#"><span>Q</span> QuizMate</a><p>© 2026 QuizMate. A Quiz Management System mini project.</p></footer>
+
+  <!-- Login Modal -->
+  <div class="modal hidden" id="loginModal">
+    <div class="modal-card">
+      <button class="close-btn" onclick="closeModal('loginModal')">×</button>
+
+      <div class="modal-logo">Q</div>
+      <h2>Welcome to QuizMate</h2>
+      <p class="muted">Create your account or sign in to continue.</p>
+
+      <form id="loginForm">
+        <label>Your Name (For Registration)</label>
+        <input
+          id="loginName"
+          type="text"
+          placeholder="Enter your full name"
+        >
+
+        <label>Email Address</label>
+        <input
+          id="loginEmail"
+          type="email"
+          placeholder="Enter your email"
+          required
+        >
+
+        <label>Password</label>
+        <input
+          id="loginPassword"
+          type="password"
+          placeholder="Enter password (minimum 6 characters)"
+          minlength="6"
+          required
+        >
+
+        <label>Register As</label>
+        <select id="loginRole">
+          <option value="Student">Student</option>
+          <option value="Teacher">Teacher</option>
+        </select>
+
+        <button
+          class="btn btn-primary full-btn"
+          type="submit"
+          name="action"
+          value="register">
+          Create Account
+        </button>
+
+        <button
+          class="btn btn-dark full-btn"
+          type="submit"
+          name="action"
+          value="login"
+          style="margin-top:10px">
+          Login
+        </button>
+      </form>
+
+      <div class="or-divider"><span>OR</span></div>
+
+      <button
+        class="google-btn"
+        type="button"
+        onclick="googleSignIn()">
+        🌐 Continue with Google
+      </button>
+
+      <p class="tiny-note">
+        Sign in securely using your Google account.
+      </p>
+    </div>
+  </div>
+
+  <!-- Quiz Modal -->
+  <div class="modal hidden" id="quizModal">
+    <div class="modal-card quiz-modal-card">
+      <button class="close-btn" onclick="closeQuiz()">×</button>
+      <div class="quiz-running-top"><span id="quizSubjectLabel"></span><span class="timer" id="quizTimer">⏱ 00:00</span></div>
+      <h2 id="activeQuizTitle"></h2>
+      <div class="quiz-progress"><span id="questionProgress"></span></div>
+      <div id="questionArea"></div>
+      <div class="quiz-controls">
+        <button class="btn btn-outline" id="prevQuestion" onclick="changeQuestion(-1)">Previous</button>
+        <button class="btn btn-primary" id="nextQuestion" onclick="changeQuestion(1)">Next</button>
+        <button class="btn btn-dark hidden" id="submitQuiz" onclick="submitQuiz()">Submit Quiz</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result Modal -->
+  <div class="modal hidden" id="resultModal">
+    <div class="modal-card result-card">
+      <button class="close-btn" onclick="closeModal('resultModal')">×</button>
+      <div class="result-icon">🎉</div>
+      <span class="eyebrow">QUIZ COMPLETED</span>
+      <h2>Your Result</h2>
+      <div class="score-circle"><strong id="resultScore">0%</strong><small>YOUR SCORE</small></div>
+      <p id="resultMessage"></p>
+      <div class="result-details" id="resultDetails"></div>
+      <button class="btn btn-primary full-btn" onclick="closeModal('resultModal');showDashboard()">Go to Dashboard</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="script.js"></script>
+  <script type="module" src="firebase-auth.js"></script>
+</body>
+</html>
