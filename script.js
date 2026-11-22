@@ -1,5 +1,5 @@
 const STORAGE_KEY = "quizmate_data_v2";
-const API_URL = "http://localhost:3000/api";
+const API_URL = "/api";
 
 const defaultQuizzes = [
   {
